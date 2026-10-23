@@ -81,6 +81,15 @@ export type UseQueryArgs<
    * documentation on the `pause` option.
    */
   pause?: boolean;
+  /** Optionally, a {@link Client} to use instead of the one provided via context.
+   *
+   * @remarks
+   * When set, this `client` will be used to execute the query operation
+   * instead of the {@link Client} provided by the nearest {@link Provider}.
+   * This is useful when you need to query multiple GraphQL APIs from
+   * the same component tree.
+   */
+  client?: Client;
 } & GraphQLRequestParams<Data, Variables>;
 
 /** State of the current query, your {@link useQuery} hook is executing.
@@ -221,7 +230,8 @@ export function useQuery<
   Data = any,
   Variables extends AnyVariables = AnyVariables,
 >(args: UseQueryArgs<Variables, Data>): UseQueryResponse<Data, Variables> {
-  const client = useClient();
+  const contextClient = useClient();
+  const client = args.client || contextClient;
   const cache = getCacheForClient(client);
   const suspense = isSuspense(client, args.context);
   const request = useRequest(args.query, args.variables as Variables);

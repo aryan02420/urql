@@ -3,6 +3,7 @@ import { pipe, onPush, filter, toPromise, take } from 'wonka';
 
 import type {
   AnyVariables,
+  Client,
   DocumentInput,
   OperationResult,
   OperationContext,
@@ -145,9 +146,13 @@ export type UseMutationResponse<
 export function useMutation<
   Data = any,
   Variables extends AnyVariables = AnyVariables,
->(query: DocumentInput<Data, Variables>): UseMutationResponse<Data, Variables> {
+>(
+  query: DocumentInput<Data, Variables>,
+  opts?: { client?: Client }
+): UseMutationResponse<Data, Variables> {
   const isMounted = React.useRef(true);
-  const client = useClient();
+  const contextClient = useClient();
+  const client = (opts && opts.client) || contextClient;
 
   const [state, setState] =
     React.useState<UseMutationState<Data, Variables>>(initialState);

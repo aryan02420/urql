@@ -62,8 +62,10 @@ Context.displayName = 'UrqlContext';
  * In development, if the component you call `useClient()` in is
  * not wrapped in a {@link Provider}, an error is thrown.
  */
-export const useClient = (): Client => {
+export const useClient = (override?: Client): Client => {
   const client = React.useContext(Context);
+
+  if (override) return override;
 
   if (client === OBJ && process.env.NODE_ENV !== 'production') {
     const error =
