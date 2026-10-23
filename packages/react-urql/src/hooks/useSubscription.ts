@@ -6,6 +6,7 @@ import * as React from 'react';
 import type {
   GraphQLRequestParams,
   AnyVariables,
+  Client,
   CombinedError,
   OperationContext,
   Operation,
@@ -60,6 +61,15 @@ export type UseSubscriptionArgs<
    * ```
    */
   context?: Partial<OperationContext>;
+  /** Optionally, a {@link Client} to use instead of the one provided via context.
+   *
+   * @remarks
+   * When set, this `client` will be used to execute the subscription operation
+   * instead of the {@link Client} provided by the nearest {@link Provider}.
+   * This is useful when you need to subscribe to multiple GraphQL APIs from
+   * the same component tree.
+   */
+  client?: Client;
 } & GraphQLRequestParams<Data, Variables>;
 
 /** Combines previous data with an incoming subscription result’s data.
@@ -230,7 +240,8 @@ export function useSubscription<
   args: UseSubscriptionArgs<Variables, Data>,
   handler?: SubscriptionHandler<Data, Result>
 ): UseSubscriptionResponse<Result, Variables> {
-  const client = useClient();
+  const contextClient = useClient();
+  const client = args.client || contextClient;
   const request = useRequest(args.query, args.variables as Variables);
 
   const handlerRef = React.useRef<
